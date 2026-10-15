@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">StreakDown</string>
+    <string name="title_activity_main">StreakDown</string>
+    <string name="package_name">com.streakdown.app</string>
+    <string name="custom_url_scheme">com.streakdown.app</string>
+</resources>

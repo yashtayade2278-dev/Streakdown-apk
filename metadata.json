@@ -1,0 +1,6 @@
+{
+  "name": "StreakDown",
+  "description": "Simple Android goal tracking app with countdowns, daily check-ins, and interactive home screen widgets.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
