@@ -1,14 +1,14 @@
 {
   "id": "/",
-  "name": "StreakDown",
-  "short_name": "StreakDown",
-  "description": "Minimalist Android goal tracking app with countdowns, daily check-ins, and interactive home screen widgets.",
+  "name": "Kairo",
+  "short_name": "Kairo",
+  "description": "Daily check-ins, habit streaks and goal countdowns. Make Today Count.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#ffffff",
-  "theme_color": "#0284c7",
+  "background_color": "#FFF8EE",
+  "theme_color": "#FFF8EE",
   "icons": [
     {
       "src": "/icon.svg",

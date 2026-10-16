@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Goal, HomeWidget, formatDisplayDate } from '../types.ts';
 import { GoalWidget } from './GoalWidget.tsx';
+import { KairoLogo } from './KairoLogo.tsx';
 
 interface AndroidHomeScreenProps {
   goals: Goal[];
@@ -169,21 +170,21 @@ export const AndroidHomeScreen: React.FC<AndroidHomeScreenProps> = ({
             <span className="text-[10px] font-medium text-slate-600">Chrome</span>
           </div>
 
-          {/* StreakDown App (Interactive) */}
+          {/* Kairo App (Interactive) */}
           <button
             onClick={() => onOpenApp()}
             className="flex flex-col items-center gap-1 group relative transition-transform active:scale-95"
-            title="Open StreakDown App"
+            title="Open Kairo App"
           >
-            <div className="w-11 h-11 rounded-2xl bg-sky-600 group-hover:bg-sky-700 text-white flex items-center justify-center shadow-sm relative transition-colors">
-              <Flame className="w-6 h-6 text-amber-200 fill-amber-200" />
+            <div className="relative">
+              <KairoLogo size={44} />
               {pendingGoalsCount > 0 && (
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-amber-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white shadow-xs">
                   {pendingGoalsCount}
                 </span>
               )}
             </div>
-            <span className="text-[10px] font-bold text-sky-800">StreakDown</span>
+            <span className="text-[10px] font-bold text-slate-700">Kairo</span>
           </button>
         </div>
       </div>

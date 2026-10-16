@@ -4,128 +4,72 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { Goal, HomeWidget } from './types.ts';
-import {
-  loadGoals,
-  loadWidgets,
-  createGoal,
-  updateGoal,
-  deleteGoal,
-  checkInGoal,
-  pinWidget,
-  unpinWidget,
-  STORAGE_CHANGE_EVENT,
-} from './utils/storage.ts';
+import { Goal } from './types.ts';
+import { loadGoals, createGoal, updateGoal, deleteGoal, checkInGoal, STORAGE_CHANGE_EVENT, replaceGoalsFromNative } from './utils/storage.ts';
 import { AndroidFrame } from './components/AndroidFrame.tsx';
 import { MainScreen } from './components/MainScreen.tsx';
-import { AndroidHomeScreen } from './components/AndroidHomeScreen.tsx';
 
 export default function App() {
-  const [currentView, setCurrentView] = useState<'app' | 'homescreen'>('app');
   const [goals, setGoals] = useState<Goal[]>(() => loadGoals(new Date()));
-  const [widgets, setWidgets] = useState<HomeWidget[]>(() => loadWidgets());
   const [currentDate, setCurrentDate] = useState<Date>(() => new Date());
 
-  // Keep date in sync with real day turnover
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentDate(new Date());
-    }, 60000); // Check every minute
+    const timer = setInterval(() => setCurrentDate((p) => (new Date().toDateString() === p.toDateString() ? p : new Date())), 60000);
     return () => clearInterval(timer);
   }, []);
 
-  // Sync state from storage whenever a storage change event occurs
-  const refreshData = useCallback(() => {
-    setGoals(loadGoals(new Date()));
-    setWidgets(loadWidgets());
-  }, []);
+  const refreshData = useCallback(() => setGoals(loadGoals(new Date())), []);
 
   useEffect(() => {
     refreshData();
-
-    const handleStorageChange = () => {
-      refreshData();
+    const syncFromNative = async () => {
+      try {
+        const nativePlugin = (window as any)?.Capacitor?.Plugins?.StreakDownNative;
+        if (!nativePlugin?.getGoals) return;
+        const result = await nativePlugin.getGoals();
+        if (Array.isArray(result?.goals)) {
+          // Ignore legacy demo goals from older native storage; never seed examples.
+          const nativeGoals = (result.goals as Goal[]).filter(
+            (goal) => goal.id !== 'goal-seed-1' && goal.id !== 'goal-seed-2'
+          );
+          const hadLegacySamples = (result.goals as Goal[]).some(
+            (goal) => goal.id === 'goal-seed-1' || goal.id === 'goal-seed-2'
+          );
+          if (nativeGoals.length > 0) {
+            // Import genuine native goals before syncing the cleaned list back.
+            replaceGoalsFromNative(nativeGoals);
+            refreshData();
+          }
+          if (hadLegacySamples) {
+            // Remove only known demo records. If the native list had no real goals,
+            // preserve any real goals already stored by the web app.
+            const cleanGoals = nativeGoals.length > 0 ? nativeGoals : loadGoals(new Date());
+            await nativePlugin.syncGoals?.({ goals: cleanGoals });
+          }
+        }
+      } catch {
+        // Native bridge is unavailable in browser preview.
+      }
     };
-
+    void syncFromNative();
+    const handleVisibility = () => { if (document.visibilityState === 'visible') void syncFromNative(); };
+    const handleStorageChange = () => refreshData();
+    document.addEventListener('visibilitychange', handleVisibility);
     window.addEventListener(STORAGE_CHANGE_EVENT, handleStorageChange);
     return () => {
       window.removeEventListener(STORAGE_CHANGE_EVENT, handleStorageChange);
+      document.removeEventListener('visibilitychange', handleVisibility);
     };
   }, [refreshData]);
 
-  // Daily Check In Handler
-  const handleCheckIn = (goalId: string) => {
-    checkInGoal(goalId, new Date());
-    refreshData();
-  };
-
-  // Add Goal Handler
-  const handleAddGoal = (data: {
-    title: string;
-    description?: string;
-    targetDate: string;
-  }) => {
-    createGoal(data, new Date());
-    refreshData();
-  };
-
-  // Edit Goal Handler
-  const handleEditGoal = (id: string, updates: Partial<Goal>) => {
-    updateGoal(id, updates, new Date());
-    refreshData();
-  };
-
-  // Delete Goal Handler
-  const handleDeleteGoal = (id: string) => {
-    deleteGoal(id, new Date());
-    refreshData();
-  };
-
-  // Pin Goal to Android Home Screen Widget
-  const handlePinWidget = (goalId: string) => {
-    pinWidget(goalId);
-    refreshData();
-  };
-
-  // Remove Widget from Android Home Screen
-  const handleRemoveWidget = (widgetId: string) => {
-    unpinWidget(widgetId);
-    refreshData();
-  };
-
-  // Switch to StreakDown App view
-  const handleOpenApp = () => {
-    setCurrentView('app');
-  };
+  const handleCheckIn = (goalId: string) => { checkInGoal(goalId, new Date()); refreshData(); };
+  const handleAddGoal = (data: { title: string; description?: string; targetDate: string }) => { createGoal(data, new Date()); refreshData(); };
+  const handleEditGoal = (id: string, updates: Partial<Goal>) => { updateGoal(id, updates, new Date()); refreshData(); };
+  const handleDeleteGoal = (id: string) => { deleteGoal(id, new Date()); refreshData(); };
 
   return (
-    <AndroidFrame
-      currentView={currentView}
-      onViewChange={setCurrentView}
-    >
-      {currentView === 'app' ? (
-        <MainScreen
-          goals={goals}
-          widgets={widgets}
-          simulatedDate={currentDate}
-          onCheckIn={handleCheckIn}
-          onAddGoal={handleAddGoal}
-          onEditGoal={handleEditGoal}
-          onDeleteGoal={handleDeleteGoal}
-          onPinWidget={handlePinWidget}
-          onGoToHomeScreen={() => setCurrentView('homescreen')}
-        />
-      ) : (
-        <AndroidHomeScreen
-          goals={goals}
-          widgets={widgets}
-          simulatedDate={currentDate}
-          onCheckIn={handleCheckIn}
-          onRemoveWidget={handleRemoveWidget}
-          onPinWidget={handlePinWidget}
-          onOpenApp={handleOpenApp}
-        />
-      )}
+    <AndroidFrame>
+      <MainScreen goals={goals} simulatedDate={currentDate} onCheckIn={handleCheckIn} onAddGoal={handleAddGoal} onEditGoal={handleEditGoal} onDeleteGoal={handleDeleteGoal} />
     </AndroidFrame>
   );
 }

@@ -1,5 +1,5 @@
 /**
- * StreakDown - Type Definitions and Date/Streak Utilities
+ * Kairo - Type Definitions and Date/Streak Utilities
  */
 
 export interface Goal {

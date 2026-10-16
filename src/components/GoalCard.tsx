@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Flame, Check, Calendar, Trash2, Edit3, Smartphone, Sparkles, Trophy, Award } from 'lucide-react';
+import { Flame, Check, Calendar, Trash2, Edit3, Sparkles, Trophy, Award } from 'lucide-react';
 import {
   Goal,
   calculateDaysRemaining,
@@ -11,22 +11,20 @@ import {
 
 interface GoalCardProps {
   goal: Goal;
+  colorIndex?: number;
   simulatedDate: Date;
   onCheckIn: (id: string) => void;
   onEdit: (goal: Goal) => void;
   onDelete: (id: string) => void;
-  onPinWidget: (goalId: string) => void;
-  isWidgetPinned?: boolean;
 }
 
 export const GoalCard: React.FC<GoalCardProps> = ({
   goal,
+  colorIndex = 0,
   simulatedDate,
   onCheckIn,
   onEdit,
   onDelete,
-  onPinWidget,
-  isWidgetPinned = false,
 }) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [justCheckedIn, setJustCheckedIn] = useState(false);
@@ -46,15 +44,19 @@ export const GoalCard: React.FC<GoalCardProps> = ({
     setTimeout(() => setJustCheckedIn(false), 1200);
   };
 
+  const cardPalettes = [
+    { bg: 'linear-gradient(135deg, #FFF8EE 0%, #FFF1DB 100%)', border: '#F4D9B9', accent: '#E9784E', soft: '#FFE5CB' },
+    { bg: 'linear-gradient(135deg, #FFF8F7 0%, #FCE6EE 100%)', border: '#F2D0DD', accent: '#D85D87', soft: '#FBE0EA' },
+    { bg: 'linear-gradient(135deg, #F8FBFF 0%, #E6F1FF 100%)', border: '#D0E1F6', accent: '#4389C8', soft: '#DDEEFF' },
+    { bg: 'linear-gradient(135deg, #FFF9F0 0%, #F8EEDD 100%)', border: '#EAD9BF', accent: '#B88749', soft: '#F5E7D0' },
+  ];
+  const palette = cardPalettes[Math.abs(colorIndex) % cardPalettes.length];
+
   return (
-    <div className={`rounded-2xl border transition-shadow p-5 flex flex-col justify-between gap-4 relative overflow-hidden ${
-      isCompleted
-        ? 'bg-emerald-50/30 border-emerald-200/90 shadow-xs'
-        : 'bg-white border-slate-200/90 shadow-xs hover:shadow-sm'
-    }`}>
+    <div style={{ background: isCompleted ? 'linear-gradient(135deg, #F1FAF3 0%, #E6F5E8 100%)' : palette.bg, borderColor: isCompleted ? '#CDE8D2' : palette.border, ['--goal-accent' as any]: palette.accent, ['--goal-soft' as any]: palette.soft } as React.CSSProperties} className="kairo-goal-card rounded-[1.75rem] border transition-all p-5 shadow-sm hover:shadow-md flex flex-col gap-5 relative overflow-hidden">
       {justCheckedIn && (
-        <div className="absolute inset-0 bg-sky-500/10 pointer-events-none flex items-center justify-center animate-fade-out">
-          <div className="bg-sky-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-md flex items-center gap-1.5 animate-bounce">
+        <div className="absolute inset-0 bg-[#F8A7A1]/20 pointer-events-none flex items-center justify-center animate-fade-out">
+          <div className="bg-[#E9784E] text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-md flex items-center gap-1.5 animate-bounce">
             <Sparkles className="w-3.5 h-3.5" /> Streak Updated!
           </div>
         </div>
@@ -83,18 +85,6 @@ export const GoalCard: React.FC<GoalCardProps> = ({
 
           {/* Quick Actions (Edit, Delete, Pin) */}
           <div className="flex items-center gap-1 shrink-0 -mr-1">
-            <button
-              onClick={() => onPinWidget(goal.id)}
-              title={isWidgetPinned ? 'Already on Home Screen' : 'Pin Widget to Android Home Screen'}
-              className={`p-2 rounded-lg text-xs font-medium transition-colors ${
-                isWidgetPinned
-                  ? 'text-sky-600 bg-sky-50'
-                  : 'text-slate-400 hover:text-sky-600 hover:bg-slate-100'
-              }`}
-              aria-label="Pin widget to home screen"
-            >
-              <Smartphone className="w-4 h-4" />
-            </button>
             <button
               onClick={() => onEdit(goal)}
               title="Edit goal"
@@ -162,7 +152,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
           {/* Stats: Longest Streak and Days Missed */}
           <div className="grid grid-cols-2 gap-2.5">
             {/* Longest Streak */}
-            <div className="bg-white border border-slate-200/90 rounded-xl p-3 flex flex-col justify-between shadow-2xs">
+            <div className="bg-white/65 border border-black/5 rounded-xl p-3 flex flex-col justify-between shadow-2xs">
               <span className="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
                 <Flame className="w-4 h-4 text-amber-500 fill-amber-500" />
                 Longest Streak
@@ -181,7 +171,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
             </div>
 
             {/* Days Missed */}
-            <div className="bg-white border border-slate-200/90 rounded-xl p-3 flex flex-col justify-between shadow-2xs">
+            <div className="bg-white/65 border border-black/5 rounded-xl p-3 flex flex-col justify-between shadow-2xs">
               <span className="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
                 <Calendar className="w-4 h-4 text-slate-400" />
                 Days Missed
@@ -211,25 +201,25 @@ export const GoalCard: React.FC<GoalCardProps> = ({
       ) : (
         /* Regular Active Goal: Countdown, Current Streak, and Check In Button */
         <>
-          <div className="grid grid-cols-2 gap-3 pt-1 border-t border-slate-100">
+          <div className="grid grid-cols-2 gap-5 pt-4 border-t border-black/10 items-stretch">
             {/* Days Remaining / Target Date */}
-            <div className="flex flex-col">
-              <span className="text-xs font-medium text-slate-600">Target Date</span>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                <span className="text-sm font-semibold text-slate-900 tabular-nums">
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm font-semibold leading-6 min-h-6 text-slate-600">Target Date</span>
+              <div className="flex items-center gap-2 mt-2 min-h-8">
+                <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
+                <span className="text-base font-semibold text-slate-900 tabular-nums leading-6">
                   {daysRemaining} {daysRemaining === 1 ? 'day' : 'days'} left
                 </span>
               </div>
-              <span className="text-[11px] text-slate-600 mt-0.5">
+              <span className="text-xs text-slate-600 mt-2 min-h-[2.5rem] leading-5 break-words">
                 Due {formatDisplayDate(goal.targetDate)}
               </span>
             </div>
 
             {/* Current Streak */}
-            <div className="flex flex-col">
-              <span className="text-xs font-medium text-slate-600">Current Streak</span>
-              <div className="flex items-center gap-1.5 mt-0.5">
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm font-semibold leading-6 min-h-6 text-slate-600">Current Streak</span>
+              <div className="flex items-center gap-2 mt-2 min-h-8">
                 <Flame
                   className={`w-4 h-4 shrink-0 transition-transform ${
                     goal.currentStreak > 0
@@ -238,7 +228,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
                   }`}
                 />
                 <span
-                  className={`text-lg font-bold tabular-nums ${
+                  className={`text-xl font-bold tabular-nums leading-7 ${
                     goal.currentStreak > 0 ? 'text-amber-600' : 'text-slate-400'
                   }`}
                 >
@@ -248,7 +238,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
                   {goal.currentStreak === 1 ? 'day' : 'days'}
                 </span>
               </div>
-              <span className="text-[11px] text-slate-600 mt-0.5">
+              <span className="text-xs text-slate-600 mt-2 min-h-[2.5rem] leading-5 break-words">
                 {checkedInToday
                   ? 'Checked in for today'
                   : goal.currentStreak > 0
@@ -259,11 +249,11 @@ export const GoalCard: React.FC<GoalCardProps> = ({
           </div>
 
           {/* Primary Daily Check In Action */}
-          <div className="pt-1">
+          <div className="pt-1 mt-auto">
             {checkedInToday ? (
               <button
                 disabled
-                className="w-full h-11 rounded-xl bg-slate-100 text-slate-600 font-medium text-sm flex items-center justify-center gap-2 cursor-default select-none border border-slate-200"
+                className="w-full h-12 rounded-xl bg-[#F6EEDC] text-[#6C655D] font-medium text-sm flex items-center justify-center gap-2 cursor-default select-none border border-[#E9DDCC]"
               >
                 <Check className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
                 <span>Checked In Today</span>
@@ -271,9 +261,9 @@ export const GoalCard: React.FC<GoalCardProps> = ({
             ) : (
               <button
                 onClick={handleCheckInClick}
-                className="w-full h-11 rounded-xl bg-sky-600 hover:bg-sky-700 active:scale-[0.99] text-white font-medium text-sm flex items-center justify-center gap-2 transition-all shadow-xs shadow-sky-600/20"
+                className="kairo-checkin-button w-full h-12 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
               >
-                <Flame className="w-4 h-4 text-amber-200" />
+                <Flame className="w-4 h-4" style={{ color: "var(--goal-accent)" }} />
                 <span>
                   {goal.currentStreak === 0
                     ? 'Check In (Restart at 1)'

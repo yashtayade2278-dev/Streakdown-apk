@@ -1,32 +1,76 @@
 @import "tailwindcss";
 
-@layer utilities {
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+@layer base {
+  :root { color-scheme: light; }
+  html, body, #root { min-height: 100%; }
+  body {
+    margin: 0;
+    background: #FFF8EE;
+    color: #2B2B2B;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
-
-  @keyframes scaleUp {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-  }
-
-  @keyframes fadeOut {
-    0% { opacity: 0; }
-    20% { opacity: 1; }
-    80% { opacity: 1; }
-    100% { opacity: 0; }
-  }
-
-  .animate-fade-in {
-    animation: fadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  .animate-scale-up {
-    animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  .animate-fade-out {
-    animation: fadeOut 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
+  button { -webkit-tap-highlight-color: transparent; }
 }
+
+@layer utilities {
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes scaleUp { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: scale(1); } }
+  @keyframes fadeOut { 0% { opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+  .animate-fade-in { animation: fadeIn .18s cubic-bezier(.16,1,.3,1) forwards; }
+  .animate-scale-up { animation: scaleUp .2s cubic-bezier(.16,1,.3,1) forwards; }
+  .animate-fade-out { animation: fadeOut 1.2s cubic-bezier(.16,1,.3,1) forwards; }
+}
+
+.kairo-app {
+  background:
+    radial-gradient(ellipse at 95% 0%, rgba(255, 224, 207, .42), transparent 34%),
+    radial-gradient(ellipse at 0% 82%, rgba(219, 235, 255, .40), transparent 36%),
+    #FFF8EE;
+}
+.kairo-header {
+  background: linear-gradient(110deg, rgba(255,255,255,.94), rgba(255,246,235,.94));
+  border-bottom: 1px solid #F0E1D2;
+  box-shadow: 0 4px 18px rgba(116, 83, 50, .055);
+}
+.kairo-logo-mark {
+  width: 52px; height: 52px; border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  background: linear-gradient(140deg, #FFD99A 0%, #FF9B78 48%, #F27CA6 100%);
+  box-shadow: 0 7px 16px rgba(231, 127, 112, .18);
+}
+.kairo-tagline { color: #E36E55; }
+.kairo-empty-state {
+  background: linear-gradient(145deg, rgba(255,255,255,.88), rgba(255,241,219,.84));
+  border: 1px dashed #E8CBB0;
+  box-shadow: 0 10px 28px rgba(127, 94, 59, .06);
+}
+.kairo-empty-icon {
+  width: 64px; height: 64px; border-radius: 22px;
+  display:flex; align-items:center; justify-content:center;
+  color: #E8795D; background: linear-gradient(135deg, #FFE8C4, #FADBE5);
+}
+.kairo-primary-button {
+  color: #5B332B;
+  background: linear-gradient(110deg, #FFD89A 0%, #FFB59A 56%, #F5A8C3 100%);
+  border: 1px solid rgba(226, 143, 115, .22);
+  box-shadow: 0 8px 18px rgba(218, 139, 108, .18);
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+.kairo-primary-button:active { transform: scale(.98); }
+.kairo-goal-card { box-shadow: 0 7px 22px rgba(105, 80, 56, .065); }
+.kairo-goal-card:hover { box-shadow: 0 10px 25px rgba(105, 80, 56, .09); }
+.kairo-checkin-button {
+  background: linear-gradient(100deg, #FFE8C7, #FBE0D8);
+  border: 1px solid rgba(226, 143, 115, .18);
+  color: #713E31;
+}
+.kairo-checkin-button:active { transform: scale(.99); }
+
+/* Kairo viewport layout: keep the brand header visible while the goal list scrolls. */
+html, body, #root { height: 100%; min-height: 100%; overflow: hidden; }
+.kairo-app { height: 100dvh; min-height: 0; max-height: 100dvh; }
+.kairo-header { flex: 0 0 auto; position: sticky; top: 0; z-index: 30; }
+.kairo-logo-mark { background: linear-gradient(140deg, #FFD99A 0%, #FFB8A3 48%, #F4B8D9 100%); color: #FFFDF8; }
+.kairo-goal-card { min-height: 250px; }
+.kairo-logo-mark { border-radius: 26%; }

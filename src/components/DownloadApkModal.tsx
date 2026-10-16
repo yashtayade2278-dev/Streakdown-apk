@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { KairoLogo } from './KairoLogo.tsx';
 import {
   Download,
   X,
@@ -48,7 +49,7 @@ export const DownloadApkModal: React.FC<DownloadApkModalProps> = ({
     } else {
       // Direct prompt / fallback instructions
       alert(
-        'To install on Android right now:\n1. Tap the 3 dots (⋮) in your mobile browser\n2. Select "Install App" or "Add to Home screen"\n\nStreakDown will be installed as a full-screen native app on your phone!'
+        'To install on Android right now:\n1. Tap the 3 dots (⋮) in your mobile browser\n2. Select "Install App" or "Add to Home screen"\n\nKairo will be installed as a full-screen native app on your phone!'
       );
     }
   };
@@ -70,13 +71,11 @@ export const DownloadApkModal: React.FC<DownloadApkModalProps> = ({
         {/* Modal Header */}
         <div className="px-6 py-4.5 bg-gradient-to-r from-sky-600 via-sky-700 to-indigo-700 text-white flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-white/15 backdrop-blur-xs flex items-center justify-center text-white border border-white/20 shadow-xs">
-              <Smartphone className="w-5 h-5 text-sky-200" />
-            </div>
+            <KairoLogo size={40} />
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-lg font-bold tracking-tight">
-                  Download StreakDown
+                  Download Kairo
                 </h2>
                 <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-400 text-slate-900">
                   Android 12+
@@ -114,7 +113,7 @@ export const DownloadApkModal: React.FC<DownloadApkModalProps> = ({
                   </span>
                 </div>
                 <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
-                  Install StreakDown directly onto your phone without needing a computer. Runs standalone with full-screen experience and offline support.
+                  Install Kairo directly onto your phone without needing a computer. Runs standalone with full-screen experience and offline support.
                 </p>
               </div>
             </div>
@@ -212,7 +211,7 @@ export const DownloadApkModal: React.FC<DownloadApkModalProps> = ({
 
         {/* Modal Footer */}
         <div className="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between shrink-0">
-          <span className="text-[11px] text-slate-600">StreakDown · Version 1.0.0</span>
+          <span className="text-[11px] text-slate-600">Kairo · Version 1.0.0</span>
           <button
             onClick={onClose}
             className="px-4 py-2 bg-slate-200 hover:bg-slate-300 active:scale-95 text-slate-800 text-xs font-semibold rounded-xl transition-colors cursor-pointer"

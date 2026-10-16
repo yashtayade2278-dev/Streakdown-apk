@@ -24,6 +24,14 @@
 
         </activity>
 
+        <activity android:name=".WidgetConfigureActivity" android:exported="true" android:theme="@style/AppTheme.WidgetConfigure" />
+
+        <receiver android:name=".WidgetCheckInReceiver" android:exported="false" />
+        <receiver android:name=".LargeWidgetProvider" android:label="@string/widget_label_large" android:icon="@mipmap/ic_launcher" android:exported="true">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_large_native_info" />
+        </receiver>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -35,7 +43,4 @@
         </provider>
     </application>
 
-    <!-- Permissions -->
-
-    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Flame, Check, Calendar, X, Sparkles, Trophy } from 'lucide-react';
+import { KairoLogo } from './KairoLogo.tsx';
 import {
   Goal,
   calculateDaysRemaining,
@@ -59,7 +60,7 @@ export const GoalWidget: React.FC<GoalWidgetProps> = ({
     >
       {/* Micro confetti / animation feedback */}
       {justCheckedIn && (
-        <div className="absolute inset-0 bg-sky-500/15 rounded-2xl pointer-events-none flex items-center justify-center animate-fade-out z-10">
+        <div className="absolute inset-0 bg-[#F8A7A1]/15 rounded-2xl pointer-events-none flex items-center justify-center animate-fade-out z-10">
           <div className="bg-sky-600 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
             <Sparkles className="w-3 h-3" /> Streak +1!
           </div>
@@ -70,11 +71,9 @@ export const GoalWidget: React.FC<GoalWidgetProps> = ({
       <div className="flex items-center justify-between gap-1.5 pb-1">
         <div className="flex items-center gap-1.5 min-w-0">
           {/* Mini App icon */}
-          <div className="w-4 h-4 rounded-md bg-sky-600 text-white flex items-center justify-center text-[9px] font-bold shrink-0">
-            S
-          </div>
+          <KairoLogo size={16} />
           <span className="text-[10px] font-semibold text-slate-600 tracking-wider uppercase truncate">
-            StreakDown Widget
+            Kairo
           </span>
         </div>
 
@@ -204,7 +203,7 @@ export const GoalWidget: React.FC<GoalWidgetProps> = ({
         ) : (
           <button
             onClick={handleCheckIn}
-            className="w-full h-8 rounded-lg bg-sky-600 hover:bg-sky-700 active:scale-[0.98] text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+            className="w-full h-8 rounded-lg bg-gradient-to-r from-[#F9C77A] to-[#F8A7A1] active:scale-[0.98] text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs"
           >
             <Flame className="w-3.5 h-3.5 text-amber-200" />
             <span>{goal.currentStreak === 0 ? 'Restart at 1' : 'Check In'}</span>

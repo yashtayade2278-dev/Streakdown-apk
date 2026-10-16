@@ -35,7 +35,7 @@ export const GoalModal: React.FC<GoalModalProps> = ({
       setTargetDate('');
     }
     setError(null);
-  }, [initialGoal, isOpen, simulatedDate]);
+  }, [isOpen, initialGoal?.id]);
 
   if (!isOpen) return null;
 
@@ -69,14 +69,14 @@ export const GoalModal: React.FC<GoalModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-fade-in">
       <div
-        className="bg-white w-full max-w-md rounded-3xl shadow-xl border border-slate-200 overflow-hidden flex flex-col animate-scale-up"
+        className="bg-[#FFFCF7] w-full max-w-md rounded-3xl shadow-xl border border-[#EEDCCB] overflow-hidden flex flex-col animate-scale-up"
         role="dialog"
         aria-modal="true"
       >
         {/* Header */}
         <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-[#FFF0D9] text-[#E9784E] flex items-center justify-center">
               <Target className="w-5 h-5" />
             </div>
             <div>
@@ -119,7 +119,7 @@ export const GoalModal: React.FC<GoalModalProps> = ({
                 placeholder="e.g., Read 30 mins, 10,000 Steps, Launch MVP"
                 maxLength={80}
                 required
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-colors"
+                className="w-full px-3.5 py-2.5 bg-[#FFF8EE] border border-[#E9DDCC] rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#F5A623]/20 focus:border-[#E9784E] transition-colors"
                 autoFocus
               />
             </div>
@@ -142,12 +142,12 @@ export const GoalModal: React.FC<GoalModalProps> = ({
                     dateInputRef.current?.focus();
                   }
                 }}
-                className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm flex items-center justify-between cursor-pointer transition-colors"
+                className="w-full pl-10 pr-3.5 py-2.5 bg-[#FFF8EE] border border-[#E9DDCC] rounded-xl text-sm flex items-center justify-between cursor-pointer transition-colors"
               >
                 <span className={targetDate ? 'text-slate-900 font-medium' : 'text-slate-400 tracking-wider'}>
                   {targetDate ? formatDisplayDate(targetDate) : 'dd-mm-yyyy'}
                 </span>
-                <span className="text-[11px] text-sky-600 font-semibold select-none">
+                <span className="text-[11px] text-[#D9684C] font-semibold select-none">
                   Pick Date
                 </span>
               </div>
@@ -168,7 +168,7 @@ export const GoalModal: React.FC<GoalModalProps> = ({
             {targetDate && (
               <div className="mt-1.5 flex items-center justify-between text-[11px] text-slate-600 px-1">
                 <span>Countdown:</span>
-                <span className="font-semibold text-sky-700 tabular-nums">
+                <span className="font-semibold text-[#D9684C] tabular-nums">
                   {isCompleted
                     ? 'Target reached · Directly completed'
                     : `${days} ${days === 1 ? 'day' : 'days'} left (Completes on ${formatDisplayDate(targetDate)})`}
@@ -189,7 +189,7 @@ export const GoalModal: React.FC<GoalModalProps> = ({
                 placeholder="Add motivating notes, rules, or milestone details..."
                 rows={3}
                 maxLength={250}
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-colors resize-none"
+                className="w-full px-3.5 py-2.5 bg-[#FFF8EE] border border-[#E9DDCC] rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#F5A623]/20 focus:border-[#E9784E] transition-colors resize-none"
               />
             </div>
           </div>
@@ -205,7 +205,7 @@ export const GoalModal: React.FC<GoalModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 bg-sky-600 hover:bg-sky-700 active:scale-[0.98] text-white text-xs font-semibold rounded-xl shadow-sm transition-all"
+              className="px-5 py-2.5 bg-gradient-to-r from-[#F9C77A] to-[#F8A7A1] text-[#59382E] hover:brightness-[0.98] active:scale-[0.98] text-xs font-semibold rounded-xl shadow-sm transition-all"
             >
               {initialGoal ? 'Save Changes' : 'Create Goal'}
             </button>

@@ -1,5 +1,5 @@
 /**
- * Storage and Persistence Layer for StreakDown
+ * Storage and Persistence Layer for Kairo
  * Uses localStorage with custom event dispatching for instant multi-component reactivity.
  */
 
@@ -15,68 +15,6 @@ const GOALS_STORAGE_KEY = 'streakdown_goals_v1';
 const WIDGETS_STORAGE_KEY = 'streakdown_widgets_v1';
 export const STORAGE_CHANGE_EVENT = 'streakdown_data_updated';
 
-// Seed data generated relative to today's date
-function getInitialSeedGoals(baseDate: Date = new Date()): Goal[] {
-  const d1 = new Date(baseDate);
-  d1.setDate(d1.getDate() + 30);
-
-  const d2 = new Date(baseDate);
-  d2.setDate(d2.getDate() + 45);
-
-  // Seed check-in dates for Goal 1 (3-day streak ending yesterday, ready for check-in today)
-  const g1Yesterday = new Date(baseDate);
-  g1Yesterday.setDate(g1Yesterday.getDate() - 1);
-  const g1TwoDaysAgo = new Date(baseDate);
-  g1TwoDaysAgo.setDate(g1TwoDaysAgo.getDate() - 2);
-  const g1ThreeDaysAgo = new Date(baseDate);
-  g1ThreeDaysAgo.setDate(g1ThreeDaysAgo.getDate() - 3);
-
-  const g1CheckIns = [
-    formatDateKey(g1ThreeDaysAgo),
-    formatDateKey(g1TwoDaysAgo),
-    formatDateKey(g1Yesterday),
-  ];
-
-  // Seed check-in dates for Goal 2 (checked in today already, 5-day streak)
-  const g2Today = formatDateKey(baseDate);
-  const g2Yesterday = formatDateKey(new Date(baseDate.getTime() - 86400000));
-  const g2TwoAgo = formatDateKey(new Date(baseDate.getTime() - 86400000 * 2));
-  const g2ThreeAgo = formatDateKey(new Date(baseDate.getTime() - 86400000 * 3));
-  const g2FourAgo = formatDateKey(new Date(baseDate.getTime() - 86400000 * 4));
-
-  const g2CheckIns = [
-    g2FourAgo,
-    g2ThreeAgo,
-    g2TwoAgo,
-    g2Yesterday,
-    g2Today,
-  ];
-
-  const goal1: Goal = {
-    id: 'goal-seed-1',
-    title: 'Morning 5km Run',
-    description: 'Prepare for the autumn half-marathon with consistent daily runs.',
-    targetDate: formatDateKey(d1),
-    createdAt: new Date(baseDate.getTime() - 86400000 * 4).toISOString(),
-    checkIns: g1CheckIns,
-    currentStreak: calculateActiveStreak(g1CheckIns, baseDate),
-    lastCheckInDate: formatDateKey(g1Yesterday),
-  };
-
-  const goal2: Goal = {
-    id: 'goal-seed-2',
-    title: 'Read 20 Pages of Non-Fiction',
-    description: 'Expand mental models and deepen tech leadership habits.',
-    targetDate: formatDateKey(d2),
-    createdAt: new Date(baseDate.getTime() - 86400000 * 5).toISOString(),
-    checkIns: g2CheckIns,
-    currentStreak: calculateActiveStreak(g2CheckIns, baseDate),
-    lastCheckInDate: g2Today,
-  };
-
-  return [goal1, goal2];
-}
-
 function notifyDataChanged() {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent(STORAGE_CHANGE_EVENT));
@@ -87,25 +25,46 @@ export function loadGoals(simulatedDate: Date = new Date()): Goal[] {
   try {
     const raw = localStorage.getItem(GOALS_STORAGE_KEY);
     if (!raw) {
-      const seed = getInitialSeedGoals(simulatedDate);
-      saveGoals(seed, false);
-      return seed;
+      saveGoals([], false);
+      return [];
     }
-    const goals: Goal[] = JSON.parse(raw);
-    // Recalculate streak dynamically based on the current/simulated date
+    const stored: Goal[] = JSON.parse(raw);
+    // Remove only the two demonstration goals from older app versions.
+    // Keep any goals the user created themselves.
+    const goals = stored.filter((g) => g.id !== 'goal-seed-1' && g.id !== 'goal-seed-2');
+    if (goals.length !== stored.length) saveGoals(goals, false);
     return goals.map((g) => ({
       ...g,
       currentStreak: calculateActiveStreak(g.checkIns, simulatedDate),
     }));
   } catch {
-    const seed = getInitialSeedGoals(simulatedDate);
-    return seed;
+    saveGoals([], false);
+    return [];
+  }
+}
+
+function syncGoalsToNative(goals: Goal[]): void {
+  try {
+    const nativePlugin = (window as any)?.Capacitor?.Plugins?.StreakDownNative;
+    if (nativePlugin?.syncGoals) void nativePlugin.syncGoals({ goals });
+  } catch (err) {
+    // Browser preview has no native widget bridge; local storage remains authoritative there.
+  }
+}
+
+export function replaceGoalsFromNative(goals: Goal[]): void {
+  try {
+    localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify(goals));
+    notifyDataChanged();
+  } catch (err) {
+    console.error('Failed to import native widget changes:', err);
   }
 }
 
 export function saveGoals(goals: Goal[], notify = true): void {
   try {
     localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify(goals));
+    syncGoalsToNative(goals);
     if (notify) notifyDataChanged();
   } catch (err) {
     console.error('Failed to save goals to localStorage:', err);
@@ -116,18 +75,15 @@ export function loadWidgets(): HomeWidget[] {
   try {
     const raw = localStorage.getItem(WIDGETS_STORAGE_KEY);
     if (!raw) {
-      // Default to 1 active widget on home screen for the first seed goal
-      const defaultWidgets: HomeWidget[] = [
-        {
-          id: 'widget-default-1',
-          goalId: 'goal-seed-1',
-          addedAt: new Date().toISOString(),
-        },
-      ];
-      saveWidgets(defaultWidgets, false);
-      return defaultWidgets;
+      saveWidgets([], false);
+      return [];
     }
-    return JSON.parse(raw);
+    const widgets: HomeWidget[] = JSON.parse(raw);
+    const goals = loadGoals();
+    const validGoalIds = new Set(goals.map((g) => g.id));
+    const validWidgets = widgets.filter((w) => validGoalIds.has(w.goalId));
+    if (validWidgets.length !== widgets.length) saveWidgets(validWidgets, false);
+    return validWidgets;
   } catch {
     return [];
   }
