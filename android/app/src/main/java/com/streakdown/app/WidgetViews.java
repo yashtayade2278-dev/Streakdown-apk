@@ -41,6 +41,10 @@ final class WidgetViews {
             v.setTextViewText(R.id.widget_countdown, "Create a goal in Kairo first");
             v.setTextViewText(R.id.widget_target, "");
             applyPalette(v, 0, 0, false);
+            v.setViewVisibility(R.id.widget_countdown_value, android.view.View.VISIBLE);
+            v.setViewVisibility(R.id.widget_checkin, android.view.View.VISIBLE);
+            v.setViewPadding(R.id.widget_countdown_box, 0, 0, 0, 0);
+            v.setTextViewTextSize(R.id.widget_countdown, android.util.TypedValue.COMPLEX_UNIT_SP, 15);
             v.setTextViewText(R.id.widget_checkin, "Open app");
             Intent open = c.getPackageManager().getLaunchIntentForPackage(c.getPackageName());
             if (open != null) { PendingIntent launch = PendingIntent.getActivity(c, widgetId + 20000, open, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE); v.setOnClickPendingIntent(R.id.widget_root, launch); v.setOnClickPendingIntent(R.id.widget_title, launch); v.setOnClickPendingIntent(R.id.widget_streak_icon, launch); v.setOnClickPendingIntent(R.id.widget_streak_value, launch); v.setOnClickPendingIntent(R.id.widget_streak_unit, launch); v.setOnClickPendingIntent(R.id.widget_countdown_value, launch); v.setOnClickPendingIntent(R.id.widget_countdown, launch); }
@@ -73,10 +77,26 @@ final class WidgetViews {
         v.setTextViewText(R.id.widget_streak_icon, "🔥");
         v.setTextViewText(R.id.widget_streak_value, String.valueOf(streak));
         v.setTextViewText(R.id.widget_streak_unit, streak == 1 ? "day" : "days");
-        v.setTextViewText(R.id.widget_countdown_value, days > 0 ? String.valueOf(days) : "0");
-        v.setTextViewText(R.id.widget_countdown, days > 0 ? "days left" : "target reached");
-        v.setTextViewText(R.id.widget_checkin, checked ? "Checked in ✓" : "Check In");
-        v.setBoolean(R.id.widget_checkin, "setEnabled", !checked);
+        boolean completed = days <= 0;
+        float density = c.getResources().getDisplayMetrics().density;
+        if (completed) {
+            // Goal reached: no "0" counter and no Check In button, just a clear completed message.
+            v.setViewVisibility(R.id.widget_countdown_value, android.view.View.GONE);
+            v.setViewVisibility(R.id.widget_checkin, android.view.View.GONE);
+            v.setViewPadding(R.id.widget_countdown_box, 0, 0, 0, 0);
+            v.setTextViewTextSize(R.id.widget_countdown, android.util.TypedValue.COMPLEX_UNIT_SP, 22);
+            v.setTextViewText(R.id.widget_countdown, "Goal completed \uD83C\uDF89");
+            v.setTextViewText(R.id.widget_target, targetText);
+        } else {
+            v.setViewVisibility(R.id.widget_countdown_value, android.view.View.VISIBLE);
+            v.setViewVisibility(R.id.widget_checkin, android.view.View.VISIBLE);
+            v.setViewPadding(R.id.widget_countdown_box, (int) (8 * density), 0, 0, (int) (5 * density));
+            v.setTextViewTextSize(R.id.widget_countdown, android.util.TypedValue.COMPLEX_UNIT_SP, 15);
+            v.setTextViewText(R.id.widget_countdown_value, String.valueOf(days));
+            v.setTextViewText(R.id.widget_countdown, "days left");
+            v.setTextViewText(R.id.widget_checkin, checked ? "Checked in \u2713" : "Check In");
+            v.setBoolean(R.id.widget_checkin, "setEnabled", !checked);
+        }
         Intent check = new Intent(c, WidgetCheckInReceiver.class); check.setAction(ACTION_CHECK_IN); check.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId); check.putExtra("goal_id", goalId);
         v.setOnClickPendingIntent(R.id.widget_checkin, PendingIntent.getBroadcast(c, widgetId, check, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
         Intent open = c.getPackageManager().getLaunchIntentForPackage(c.getPackageName());
